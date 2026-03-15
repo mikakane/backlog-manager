@@ -20,5 +20,57 @@ fetch:
   #   mark   : status を "closed" に変更して残す
   closed_task_action: "remove"
 
+  # 担当者 ID で絞り込み (省略時: 全担当者)
+  # assignee_ids: [12345, 67890]
+
+  # マイルストーン ID で絞り込み (省略時: 全マイルストーン)
+  # milestone_ids: [111, 222]
+
+  # カテゴリー ID で絞り込み (省略時: 全カテゴリー)
+  # category_ids: [10, 20]
+
+  # 課題種別 ID で絞り込み (省略時: 全種別)
+  # issue_type_ids: [1, 2]
+
+  # キーワード検索 (省略時: 絞り込みなし)
+  # keyword: "バグ"
+
 output:
   tasks_yaml: "tasks.yaml"
+
+paths:
+  # split の出力先ディレクトリ
+  releases_dir: "release-tasks"
+
+  # generate の出力 PPTX パス
+  pptx_output: "tasks.pptx"
+
+pptx:
+  # 表紙・スライドタイトルのプレフィックス
+  title_prefix: "リリース計画"
+
+  # PPTX に表示する列の定義 (並び順・ラベル・列幅をカスタマイズ可能)
+  # key に指定できる値:
+  #   backlog フィールド: id, issue_key, title, status, priority,
+  #                       issue_type, assignee, milestone, category,
+  #                       due_date, created_at, updated_at
+  #   custom フィールド:  note, release_date
+  columns:
+    - key: id
+      label: "ID"
+      width: 1.2
+    - key: title
+      label: "タイトル"
+      width: 4.5
+    - key: priority
+      label: "優先度"
+      width: 1.0
+    - key: assignee
+      label: "担当者"
+      width: 1.2
+    - key: status
+      label: "ステータス"
+      width: 1.5
+    - key: note
+      label: "メモ"
+      width: 3.5

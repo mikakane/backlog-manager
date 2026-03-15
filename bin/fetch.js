@@ -97,7 +97,7 @@ class BacklogClient {
   }
 
   /** ページネーションで全課題を取得 */
-  async fetchAllIssues(projectIds, statusIds) {
+  async fetchAllIssues(projectIds, statusIds, extraParams = {}) {
     const issues = [];
     let offset = 0;
     const count = 100; // API の最大値
@@ -108,6 +108,7 @@ class BacklogClient {
       const batch = await this.get('/issues', {
         'projectId[]': projectIds,
         'statusId[]':  statusIds,
+        ...extraParams,
         count,
         offset,
       });
@@ -190,8 +191,16 @@ if (existingCount > 0) {
   console.log(`既存 tasks.yaml: ${existingCount} 件 (release_date/note を保持)`);
 }
 
+// 追加フィルターパラメータを config から構築
+const extraParams = {};
+if (config.fetch?.assignee_ids?.length)   extraParams['assigneeId[]']   = config.fetch.assignee_ids;
+if (config.fetch?.milestone_ids?.length)  extraParams['milestoneId[]']  = config.fetch.milestone_ids;
+if (config.fetch?.category_ids?.length)   extraParams['categoryId[]']   = config.fetch.category_ids;
+if (config.fetch?.issue_type_ids?.length) extraParams['issueTypeId[]']  = config.fetch.issue_type_ids;
+if (config.fetch?.keyword)                extraParams['keyword']         = config.fetch.keyword;
+
 // 課題取得
-const rawIssues = await client.fetchAllIssues(projectIds, statusIds);
+const rawIssues = await client.fetchAllIssues(projectIds, statusIds, extraParams);
 console.log(`取得完了: ${rawIssues.length} 件`);
 
 if (opts.dryRun) {
