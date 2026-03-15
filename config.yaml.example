@@ -1,0 +1,24 @@
+api:
+  # Backlog スペース ID (https://{space_id}.backlog.com)
+  space_id: "your-space"
+
+  # API キー: 環境変数 ${VAR} 形式で参照可能
+  api_key: "${BACKLOG_API_KEY}"
+
+  # 対象プロジェクトキー (Backlog のプロジェクト設定画面で確認)
+  project_keys:
+    - "PROJECT1"
+    - "PROJECT2"
+
+fetch:
+  # アクティブとみなすステータス ID
+  #   1: 未対応 / 2: 処理中 / 3: 処理済み / 4: 完了
+  active_status_ids: [1, 2, 3]
+
+  # API から消えたタスク (完了・削除) の扱い
+  #   remove : tasks.yaml から削除 (デフォルト)
+  #   mark   : status を "closed" に変更して残す
+  closed_task_action: "remove"
+
+output:
+  tasks_yaml: "tasks.yaml"

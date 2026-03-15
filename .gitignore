@@ -1,0 +1,17 @@
+# 依存パッケージ
+node_modules/
+
+# 設定ファイル (API キーを含む)
+config.yaml
+
+# 生成物
+tasks.yaml
+tasks.pptx
+release-tasks/
+releases/
+
+# OS
+.DS_Store
+
+# エディタ / ツール
+.claude/
