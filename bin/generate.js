@@ -41,6 +41,24 @@ const outputFile  = opts.output      ?? config?.paths?.pptx_output  ?? "tasks.pp
 const releasesDir = opts.releasesDir ?? config?.paths?.releases_dir ?? "release-tasks";
 const titlePrefix = config?.pptx?.title_prefix ?? "リリース計画";
 
+// 列定義: config.yaml の pptx.columns を優先、なければデフォルト
+const DEFAULT_COLUMNS = [
+  { key: "id",       label: "ID",         width: 1.2 },
+  { key: "title",    label: "タイトル",   width: 4.5 },
+  { key: "priority", label: "優先度",     width: 1.0 },
+  { key: "assignee", label: "担当者",     width: 1.2 },
+  { key: "status",   label: "ステータス", width: 1.5 },
+  { key: "note",     label: "メモ",       width: 3.5 },
+];
+const COLUMNS = config?.pptx?.columns ?? DEFAULT_COLUMNS;
+
+/** タスクオブジェクトから列キーに対応する値を返す (backlog → custom の順で探索) */
+function resolveCell(task, key) {
+  if (key in (task.backlog ?? {})) return task.backlog[key];
+  if (key in (task.custom  ?? {})) return task.custom[key];
+  return "";
+}
+
 // ---------------------------------------------------------------------------
 // releases/*.yaml 収集 (日付順ソート、untagged.yaml 除外)
 // ---------------------------------------------------------------------------
@@ -67,14 +85,9 @@ if (releaseFiles.length === 0) {
 const slides = releaseFiles.map(filePath => {
   const doc   = yaml.load(fs.readFileSync(filePath, "utf8"));
   const date  = doc?.release?.date ?? path.basename(filePath, ".yaml");
-  const tasks = (doc?.tasks ?? []).map(t => ({
-    id:       t?.backlog?.id        ?? "",
-    title:    t?.backlog?.title     ?? "",
-    priority: t?.backlog?.priority  ?? "",
-    assignee: t?.backlog?.assignee  ?? "",
-    status:   t?.backlog?.status    ?? "",
-    note:     t?.custom?.note       ?? "",
-  }));
+  const tasks = (doc?.tasks ?? []).map(t =>
+    Object.fromEntries(COLUMNS.map(col => [col.key, String(resolveCell(t, col.key) ?? "")]))
+  );
   return { date, tasks };
 });
 
@@ -97,8 +110,6 @@ const WHITE = "FFFFFF";
 const GRAY1 = "F2F2F2";
 const GRAY2 = "FFFFFF";
 
-const COLS   = ["ID", "タイトル", "優先度", "担当者", "ステータス", "メモ"];
-const WIDTHS = [1.2, 4.5, 1.0, 1.2, 1.5, 3.5]; // インチ
 const LM     = 0.3;  // 左マージン
 const RH     = 0.32; // 行高さ
 const HTOP   = 1.6;  // ヘッダー行 Y
@@ -150,30 +161,29 @@ for (const { date, tasks } of slides) {
 
   // カラムヘッダー行
   let x = LM;
-  for (let i = 0; i < COLS.length; i++) {
-    addRect(sl, x, HTOP, WIDTHS[i], RH, NAVY);
-    addText(sl, COLS[i], {
-      x: x + 0.05, y: HTOP + 0.04, w: WIDTHS[i] - 0.1, h: RH,
+  for (const col of COLUMNS) {
+    addRect(sl, x, HTOP, col.width, RH, NAVY);
+    addText(sl, col.label, {
+      x: x + 0.05, y: HTOP + 0.04, w: col.width - 0.1, h: RH,
       fontSize: 11, bold: true, color: WHITE,
     });
-    x += WIDTHS[i];
+    x += col.width;
   }
 
   // データ行
-  const KEYS = ["id", "title", "priority", "assignee", "status", "note"];
   for (let rowIdx = 0; rowIdx < tasks.length; rowIdx++) {
     const rowTop = HTOP + RH * (rowIdx + 1);
     if (rowTop + RH > 7.3) break; // スライド下端
 
     const bg = rowIdx % 2 === 0 ? GRAY1 : GRAY2;
     x = LM;
-    for (let i = 0; i < KEYS.length; i++) {
-      addRect(sl, x, rowTop, WIDTHS[i], RH, bg);
-      addText(sl, String(tasks[rowIdx][KEYS[i]] ?? ""), {
-        x: x + 0.05, y: rowTop + 0.04, w: WIDTHS[i] - 0.1, h: RH,
+    for (const col of COLUMNS) {
+      addRect(sl, x, rowTop, col.width, RH, bg);
+      addText(sl, tasks[rowIdx][col.key] ?? "", {
+        x: x + 0.05, y: rowTop + 0.04, w: col.width - 0.1, h: RH,
         fontSize: 10,
       });
-      x += WIDTHS[i];
+      x += col.width;
     }
   }
 }
