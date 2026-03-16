@@ -198,6 +198,7 @@ if (config.fetch?.milestone_ids?.length)  extraParams['milestoneId[]']  = config
 if (config.fetch?.category_ids?.length)   extraParams['categoryId[]']   = config.fetch.category_ids;
 if (config.fetch?.issue_type_ids?.length) extraParams['issueTypeId[]']  = config.fetch.issue_type_ids;
 if (config.fetch?.keyword)                extraParams['keyword']         = config.fetch.keyword;
+if (config.fetch?.exclude_child_issues)   extraParams['parentChild']     = 1; // 1: 子課題以外
 
 // 課題取得
 const rawIssues = await client.fetchAllIssues(projectIds, statusIds, extraParams);
