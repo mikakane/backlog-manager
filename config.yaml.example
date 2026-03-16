@@ -35,6 +35,9 @@ fetch:
   # キーワード検索 (省略時: 絞り込みなし)
   # keyword: "バグ"
 
+  # 小課題を除外 (true にすると親課題・通常課題のみ取得)
+  # exclude_child_issues: true
+
 output:
   tasks_yaml: "tasks.yaml"
 
@@ -48,6 +51,11 @@ paths:
 pptx:
   # 表紙・スライドタイトルのプレフィックス
   title_prefix: "リリース計画"
+
+  # PPTX 化から除外するリリース日付 (YYYY-MM-DD 形式)
+  # exclude_dates:
+  #   - "2026-04-01"
+  #   - "2026-05-01"
 
   # PPTX に表示する列の定義 (並び順・ラベル・列幅をカスタマイズ可能)
   # key に指定できる値:

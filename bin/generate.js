@@ -50,7 +50,8 @@ const DEFAULT_COLUMNS = [
   { key: "status",   label: "ステータス", width: 1.5 },
   { key: "note",     label: "メモ",       width: 3.5 },
 ];
-const COLUMNS = config?.pptx?.columns ?? DEFAULT_COLUMNS;
+const COLUMNS       = config?.pptx?.columns       ?? DEFAULT_COLUMNS;
+const EXCLUDE_DATES = new Set(config?.pptx?.exclude_dates ?? []);
 
 /** タスクオブジェクトから列キーに対応する値を返す (backlog → custom の順で探索) */
 function resolveCell(task, key) {
@@ -71,6 +72,7 @@ if (!fs.existsSync(releasesDir)) {
 const releaseFiles = fs
   .readdirSync(releasesDir)
   .filter(f => /^\d{4}-\d{2}-\d{2}\.yaml$/.test(f))
+  .filter(f => !EXCLUDE_DATES.has(path.basename(f, ".yaml")))
   .sort()
   .map(f => path.join(releasesDir, f));
 
