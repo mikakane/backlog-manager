@@ -2,9 +2,6 @@ api:
   # Backlog スペース ID (https://{space_id}.backlog.com)
   space_id: "your-space"
 
-  # API キー: 環境変数 ${VAR} 形式で参照可能
-  api_key: "${BACKLOG_API_KEY}"
-
   # 対象プロジェクトキー (Backlog のプロジェクト設定画面で確認)
   project_keys:
     - "PROJECT1"

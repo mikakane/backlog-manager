@@ -30,23 +30,7 @@ function loadConfig(configPath) {
     process.exit(1);
   }
 
-  const config = yaml.load(readFileSync(configPath, 'utf8'));
-
-  // ${ENV_VAR} 形式の環境変数を解決
-  const rawKey = config?.api?.api_key ?? '';
-  const match = rawKey.match(/^\$\{(.+)\}$/);
-  if (match) {
-    const envVar = match[1];
-    const resolved = process.env[envVar];
-    if (!resolved) {
-      console.error(`Error: 環境変数 ${envVar} が設定されていません`);
-      console.error(`  export ${envVar}=your_api_key`);
-      process.exit(1);
-    }
-    config.api.api_key = resolved;
-  }
-
-  return config;
+  return yaml.load(readFileSync(configPath, 'utf8'));
 }
 
 // ---------------------------------------------------------------------------
@@ -167,7 +151,14 @@ const config = loadConfig(opts.config);
 const outputPath = opts.output ?? config.output?.tasks_yaml ?? 'tasks.yaml';
 const statusIds  = config.fetch?.active_status_ids ?? DEFAULT_STATUS_IDS;
 
-const client = new BacklogClient(config.api.space_id, config.api.api_key);
+const apiKey = process.env.BACKLOG_API_KEY;
+if (!apiKey) {
+  console.error('Error: 環境変数 BACKLOG_API_KEY が設定されていません');
+  console.error("  echo 'export BACKLOG_API_KEY=your_api_key_here' >> ~/.zshrc && source ~/.zshrc");
+  process.exit(1);
+}
+
+const client = new BacklogClient(config.api.space_id, apiKey);
 
 // プロジェクト ID 解決
 const projectKeys = config.api.project_keys ?? [];

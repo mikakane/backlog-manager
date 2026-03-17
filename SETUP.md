@@ -47,19 +47,16 @@ cp config.yaml.example config.yaml
 
 ```yaml
 api:
-  space_id: "your-space"        # Backlog スペース ID
-  api_key: "${BACKLOG_API_KEY}"  # 環境変数で渡す (推奨)
+  space_id: "your-space"  # Backlog スペース ID
   project_keys:
-    - "PROJECT1"                # 対象プロジェクトキー
+    - "PROJECT1"           # 対象プロジェクトキー
 ```
 
 ## 3. API キーの設定
 
-Backlog の個人設定 → API からキーを発行し、環境変数にセットします。
+Backlog の個人設定 → API からキーを発行し、`~/.zshrc` に追記します。
 
 ```bash
-export BACKLOG_API_KEY=your_api_key_here
-
-# 毎回設定する手間を省く場合は ~/.zshrc に追記
 echo 'export BACKLOG_API_KEY=your_api_key_here' >> ~/.zshrc
+source ~/.zshrc
 ```
