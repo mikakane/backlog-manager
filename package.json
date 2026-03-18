@@ -5,8 +5,14 @@
   "engines": {
     "node": ">=18"
   },
+  "bin": {
+    "backlog-fetch":    "bin/fetch.js",
+    "backlog-split":    "bin/split.js",
+    "backlog-generate": "bin/generate.js"
+  },
   "scripts": {
     "test":     "node --test",
+    "all":      "npm run fetch && npm run split && npm run generate",
     "fetch":    "node bin/fetch.js",
     "split":    "node bin/split.js",
     "generate": "node bin/generate.js"

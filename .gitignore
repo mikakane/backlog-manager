@@ -5,10 +5,7 @@ node_modules/
 config.yaml
 
 # 生成物
-tasks.yaml
 tasks.pptx
-release-tasks/
-releases/
 
 # OS
 .DS_Store
