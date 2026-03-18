@@ -38,8 +38,8 @@ function loadConfig(configPath) {
 // ---------------------------------------------------------------------------
 
 class BacklogClient {
-  constructor(spaceId, apiKey) {
-    this.baseUrl = `https://${spaceId}.backlog.com/api/v2`;
+  constructor(spaceId, apiKey, domain = 'backlog.jp') {
+    this.baseUrl = `https://${spaceId}.${domain}/api/v2`;
     this.apiKey = apiKey;
   }
 
@@ -158,7 +158,7 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const client = new BacklogClient(config.api.space_id, apiKey);
+const client = new BacklogClient(config.api.space_id, apiKey, config.api.domain ?? 'backlog.jp');
 
 // プロジェクト ID 解決
 const projectKeys = config.api.project_keys ?? [];

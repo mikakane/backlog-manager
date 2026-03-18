@@ -1,6 +1,9 @@
 api:
-  # Backlog スペース ID (https://{space_id}.backlog.com)
+  # Backlog スペース ID (https://{space_id}.{domain})
   space_id: "your-space"
+
+  # ドメイン: backlog.jp (国内) / backlog.com (海外)
+  domain: "backlog.jp"
 
   # 対象プロジェクトキー (Backlog のプロジェクト設定画面で確認)
   project_keys:
