@@ -1,80 +1,72 @@
 #!/usr/bin/env node
 /**
- * index.js — fetch → split → generate をまとめて実行
+ * index.js — Backlog Manager エントリーポイント
  *
- * Usage:
+ * サブコマンドあり → 個別実行
+ *   npx github:mikakane/backlog-manager list
+ *   npx github:mikakane/backlog-manager fetch
+ *   npx github:mikakane/backlog-manager split
+ *   npx github:mikakane/backlog-manager generate
+ *
+ * サブコマンドなし → fetch → split → generate を一括実行
  *   npx github:mikakane/backlog-manager
  *   npx github:mikakane/backlog-manager --config my.yaml
  *   npx github:mikakane/backlog-manager --dry-run
- *   npx github:mikakane/backlog-manager --only fetch
  */
 
-import { spawnSync }        from 'child_process';
-import { fileURLToPath }    from 'url';
-import { dirname, join }    from 'path';
-import { program }          from 'commander';
+import { spawnSync }     from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// ---------------------------------------------------------------------------
-// CLI 引数
-// ---------------------------------------------------------------------------
+const SCRIPTS = {
+  fetch:    join(__dirname, 'fetch.js'),
+  split:    join(__dirname, 'split.js'),
+  generate: join(__dirname, 'generate.js'),
+  list:     join(__dirname, 'list.js'),
+};
 
-program
-  .description('Backlog 課題を取得し PPTX を生成する (fetch → split → generate)')
-  .option('--config <path>', '設定ファイルパス', 'config.yaml')
-  .option('--only <step>',   '指定ステップのみ実行 (fetch / split / generate)')
-  .option('--dry-run',       '出力せずに確認のみ')
-  .parse();
-
-const opts = program.opts();
+const PIPELINE = ['fetch', 'split', 'generate'];
+const DIVIDER  = '─'.repeat(50);
 
 // ---------------------------------------------------------------------------
-// ステップ定義
+// サブコマンド判定
+//   第1引数が SCRIPTS のキーならサブコマンドとして個別実行
+//   '-' 始まりのオプション or 未指定ならパイプライン全実行
 // ---------------------------------------------------------------------------
 
-const ALL_STEPS = [
-  { name: 'fetch',    script: join(__dirname, 'fetch.js') },
-  { name: 'split',    script: join(__dirname, 'split.js') },
-  { name: 'generate', script: join(__dirname, 'generate.js') },
-];
+const first = process.argv[2];
+const isSubcommand = first && !first.startsWith('-') && first in SCRIPTS;
 
-// --only が指定された場合は該当ステップのみ
-const steps = opts.only
-  ? ALL_STEPS.filter(s => s.name === opts.only)
-  : ALL_STEPS;
-
-if (steps.length === 0) {
-  console.error(`Error: 不明なステップ: ${opts.only}`);
-  console.error(`  指定できる値: ${ALL_STEPS.map(s => s.name).join(' / ')}`);
-  process.exit(1);
+if (isSubcommand) {
+  // 個別実行: 残りの引数をそのままスクリプトへ渡す
+  const result = spawnSync('node', [SCRIPTS[first], ...process.argv.slice(3)], {
+    stdio: 'inherit',
+  });
+  process.exit(result.status ?? 0);
 }
 
-// 各ステップに渡す共通オプション
-const commonArgs = [
-  '--config', opts.config,
-  ...(opts.dryRun ? ['--dry-run'] : []),
-];
-
 // ---------------------------------------------------------------------------
-// 順次実行
+// パイプライン全実行
+//   process.argv.slice(2) のオプション (--config / --dry-run 等) を各ステップに透過
 // ---------------------------------------------------------------------------
 
-const DIVIDER = '─'.repeat(50);
+const passthroughArgs = process.argv.slice(2); // --config xxx --dry-run など
 
-console.log(`\nbacklog-manager  (${steps.map(s => s.name).join(' → ')})`);
+console.log(`\nbacklog-manager  (${PIPELINE.join(' → ')})`);
 
-for (const step of steps) {
+for (const name of PIPELINE) {
   console.log(`\n${DIVIDER}`);
-  console.log(`▶  ${step.name}`);
+  console.log(`▶  ${name}`);
   console.log(DIVIDER);
 
-  const result = spawnSync('node', [step.script, ...commonArgs], {
+  const result = spawnSync('node', [SCRIPTS[name], ...passthroughArgs], {
     stdio: 'inherit',
   });
 
   if (result.status !== 0) {
-    console.error(`\nError: ${step.name} が失敗しました (exit: ${result.status ?? 'unknown'})`);
+    console.error(`\nError: ${name} が失敗しました (exit: ${result.status ?? 'unknown'})`);
     process.exit(result.status ?? 1);
   }
 }
