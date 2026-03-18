@@ -6,13 +6,14 @@
     "node": ">=18"
   },
   "bin": {
+    "backlog-manager":  "bin/index.js",
     "backlog-fetch":    "bin/fetch.js",
     "backlog-split":    "bin/split.js",
     "backlog-generate": "bin/generate.js"
   },
   "scripts": {
     "test":     "node --test",
-    "all":      "npm run fetch && npm run split && npm run generate",
+    "all":      "node bin/index.js",
     "fetch":    "node bin/fetch.js",
     "split":    "node bin/split.js",
     "generate": "node bin/generate.js"
