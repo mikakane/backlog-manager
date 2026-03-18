@@ -38,7 +38,7 @@ function loadConfig(configPath) {
 // YAML 読み書き
 // ---------------------------------------------------------------------------
 
-/** 既存 tasks.yaml を読み込み { id: { release_date, note } } を返す */
+/** 既存 tasks.yaml を読み込み { issue_key: { release_date, note } } を返す */
 function loadExistingTasks(outputPath) {
   if (!existsSync(outputPath)) return {};
 
@@ -47,7 +47,7 @@ function loadExistingTasks(outputPath) {
 
   return Object.fromEntries(
     data.tasks.map(t => [
-      String(t.backlog.id),
+      t.backlog.issue_key,
       { release_date: t.custom.release_date ?? null, note: t.custom.note ?? '' },
     ])
   );
