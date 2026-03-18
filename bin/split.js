@@ -12,8 +12,12 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { program } from 'commander';
 import yaml from 'js-yaml';
+import { groupByReleaseDate } from '../lib/transform.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ---------------------------------------------------------------------------
 // CLI 引数
@@ -59,32 +63,18 @@ if (tasks.length === 0) {
 }
 
 // ---------------------------------------------------------------------------
-// リリース日ごとにグループ化
+// リリース日ごとにグループ化 (日付順ソート、untagged を末尾に)
 // ---------------------------------------------------------------------------
 
-const groups = new Map(); // release_date → task[]
-
-for (const task of tasks) {
-  const date = task?.custom?.release_date ?? null;
-  const key  = date ?? '__untagged__';
-  if (!groups.has(key)) groups.set(key, []);
-  groups.get(key).push(task);
-}
-
-// 日付順ソート (untagged を末尾に)
-const sorted = [...groups.entries()].sort(([a], [b]) => {
-  if (a === '__untagged__') return 1;
-  if (b === '__untagged__') return -1;
-  return a.localeCompare(b);
-});
+const sorted = groupByReleaseDate(tasks);
 
 // ---------------------------------------------------------------------------
 // サマリー表示
 // ---------------------------------------------------------------------------
 
-const taggedDates  = sorted.filter(([k]) => k !== '__untagged__');
-const untaggedEntry = groups.get('__untagged__');
-const untaggedCount = untaggedEntry?.length ?? 0;
+const taggedDates   = sorted.filter(([k]) => k !== '__untagged__');
+const untaggedEntry = sorted.find(([k]) => k === '__untagged__');
+const untaggedCount = untaggedEntry?.[1]?.length ?? 0;
 
 console.log(`入力: ${inputPath}  (${tasks.length} 件)`);
 console.log(`出力先: ${outputDir}/`);
