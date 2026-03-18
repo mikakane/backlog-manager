@@ -89,7 +89,7 @@ for (const key of projectKeys) {
   // 4つのエンドポイントを並列取得
   const [categories, milestones, issueTypes, members] = await Promise.all([
     client.get(`/projects/${key}/categories`).catch(() => []),
-    client.get(`/projects/${key}/milestones`).catch(() => []),
+    client.get(`/projects/${key}/versions`).catch(() => []),
     client.get(`/projects/${key}/issueTypes`).catch(() => []),
     client.get(`/projects/${key}/members`).catch(() => []),
   ]);
