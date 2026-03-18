@@ -9,7 +9,8 @@
     "backlog-manager":  "bin/index.js",
     "backlog-fetch":    "bin/fetch.js",
     "backlog-split":    "bin/split.js",
-    "backlog-generate": "bin/generate.js"
+    "backlog-generate": "bin/generate.js",
+    "backlog-list":     "bin/list.js"
   },
   "scripts": {
     "test":     "node --test",
