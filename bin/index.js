@@ -5,6 +5,7 @@
  * サブコマンドあり → 個別実行
  *   npx github:mikakane/backlog-manager list
  *   npx github:mikakane/backlog-manager fetch
+ *   npx github:mikakane/backlog-manager fetch-sub
  *   npx github:mikakane/backlog-manager split
  *   npx github:mikakane/backlog-manager generate
  *
@@ -21,10 +22,11 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const SCRIPTS = {
-  fetch:    join(__dirname, 'fetch.js'),
-  split:    join(__dirname, 'split.js'),
-  generate: join(__dirname, 'generate.js'),
-  list:     join(__dirname, 'list.js'),
+  fetch:     join(__dirname, 'fetch.js'),
+  'fetch-sub': join(__dirname, 'fetch-sub.js'),
+  split:     join(__dirname, 'split.js'),
+  generate:  join(__dirname, 'generate.js'),
+  list:      join(__dirname, 'list.js'),
 };
 
 const PIPELINE = ['fetch', 'split', 'generate'];
