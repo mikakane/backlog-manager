@@ -46,10 +46,7 @@ function loadExistingTasks(outputPath) {
   if (!data?.tasks) return {};
 
   return Object.fromEntries(
-    data.tasks.map(t => [
-      t.backlog.issue_key,
-      { release_date: t.custom.release_date ?? null, note: t.custom.note ?? '' },
-    ])
+    data.tasks.map(t => [t.backlog.issue_key, t.custom ?? {}])
   );
 }
 
